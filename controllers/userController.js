@@ -1,16 +1,31 @@
 import { z } from 'zod';
 import User from '../models/User.js';
 
+export const me = async (req, res) => {
+  try {
+    // req.user.id should be set by requireAuth middleware
+    const user = await User.findById(req.user.id).select('-password');
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    // Send only the fields frontend needs
+    res.json({
+      name: user.name,
+      email: user.email
+    });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+};
 // For updating profile; password changes should go through a dedicated flow in real apps
 const updateSchema = z.object({
   name: z.string().min(2).max(60).optional(),
   // Do not allow changing role here to avoid privilege escalation
 });
 
-export async function me(req, res) {
-  const user = await User.findById(req.user.id);
-  return res.json({ user });
-}
+// export async function me(req, res) {
+//   const user = await User.findById(req.user.id);
+//   return res.json({ user });
+// }
 
 export async function listUsers(req, res) {
   const users = await User.find().select('-password').lean();
