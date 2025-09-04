@@ -19,6 +19,9 @@ app.use(helmet());
 app.use(cors());
 app.use(express.json());          // parse JSON bodies
 app.use(morgan('dev'));
+// Serve static HTML & CSS
+app.use(express.static("frontend"));
+
 
 // --- API routes (versioned)
 app.use('/api/auth', authRoutes);
