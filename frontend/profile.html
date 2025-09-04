@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profile</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header>
+    <h1>profile</h1>
+    <nav>
+      <a href="register.html">Register</a>
+      <a href="login.html">Login</a>
+      <a href="profile.html">Profile</a>
+    </nav>
+  </header>
+
+  <section id="profileSection">
+    <h2>Your Profile</h2>
+    <div id="profileInfo"></div>
+    <button id="logoutBtn">Logout</button>
+  </section>
+
+  <script>
+    const token = localStorage.getItem('token');
+    const profileInfo = document.getElementById('profileInfo');
+
+    if (!token) {
+      profileInfo.innerText = 'You are not logged in. Please login first.';
+    } else {
+      fetch('http://localhost:4000/api/users/me', {  // <-- correct route
+        method: 'GET',
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.message) {
+          profileInfo.innerText = 'Error: ' + JSON.stringify(data);
+        } else {
+          profileInfo.innerHTML = `
+            <p>Name: ${data.name}</p>
+            <p>Email: ${data.email}</p>
+          `;
+        }
+      })
+      .catch(err => {
+        profileInfo.innerText = 'Network error: ' + err.message;
+      });
+    }
+
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      localStorage.removeItem('token');
+      alert('Logged out successfully!');
+      window.location.href = 'login.html';
+    });
+  </script>
+</body>
+</html>
